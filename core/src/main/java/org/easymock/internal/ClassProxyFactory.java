@@ -152,7 +152,7 @@ public class ClassProxyFactory implements IProxyFactory {
         try {
             field = mock.getClass().getDeclaredField("$callback");
         } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException("Not a mock: " + mock.getClass().getName(), e);
         }
         field.setAccessible(true);
         return field;

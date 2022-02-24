@@ -328,15 +328,6 @@ public class EasyMockSupportTest extends EasyMockSupport {
         assertNull(EasyMockSupport.getMockedClass(Proxy.newProxyInstance(getClass().getClassLoader(),
             new Class<?>[] { IMethods.class }, (proxy, method, args) -> null)));
 
-        // Cglib proxy that is not an EasyMock proxy
-        assertNull(EasyMockSupport.getMockedClass(Enhancer.create(Object.class, NoOp.INSTANCE)));
-
-        // Really specific case where the cglib proxy is not even implementing Factory
-        Enhancer enhancer = new Enhancer();
-        enhancer.setUseFactory(false);
-        enhancer.setSuperclass(getClass());
-        enhancer.setCallback(NoOp.INSTANCE);
-        assertNull(EasyMockSupport.getMockedClass(enhancer.create()));
 
         assertEquals(IMethods.class, EasyMockSupport.getMockedClass(mock(IMethods.class)));
         assertEquals(getClass(), EasyMockSupport.getMockedClass(mock(getClass())));

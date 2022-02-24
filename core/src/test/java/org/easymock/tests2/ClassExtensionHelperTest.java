@@ -15,14 +15,9 @@
  */
 package org.easymock.tests2;
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.NoOp;
-import org.droidparts.dexmaker.stock.ProxyBuilder;
 import org.easymock.EasyMock;
-import org.easymock.internal.AndroidSupport;
 import org.junit.Test;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +31,6 @@ import static org.junit.Assert.*;
  */
 public class ClassExtensionHelperTest {
 
-    private static final InvocationHandler NOOP_INVOCATION_HANDLER = (proxy, method, args) -> null;
 
     @Test
     public void testGetControl_EasyMock() {
@@ -50,23 +44,6 @@ public class ClassExtensionHelperTest {
         assertNotNull(getControl(mock));
     }
 
-    @Test
-    public void testGetControl_EnhancedButNotAMock() throws Exception {
-        Object o;
-        if (AndroidSupport.isAndroid()) {
-            o = ProxyBuilder.forClass(ArrayList.class)
-                    .handler(NOOP_INVOCATION_HANDLER)
-                    .build();
-        } else {
-            o = Enhancer.create(ArrayList.class, NoOp.INSTANCE);
-        }
-        try {
-            getControl(o);
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertEquals("Not a mock: " + o.getClass().getName(), e.getMessage());
-        }
-    }
 
     @Test
     public void testGetControl_ProxyButNotMock() {
