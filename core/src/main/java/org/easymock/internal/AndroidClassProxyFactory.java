@@ -83,7 +83,7 @@ public final class AndroidClassProxyFactory implements IProxyFactory {
             // Never intercept EasyMock's own calls to fillInStackTrace
             boolean internalFillInStackTraceCall = obj instanceof Throwable
                     && method.getName().equals("fillInStackTrace")
-                    && ClassProxyFactory.isCallerMockInvocationHandlerInvoke(new Throwable());
+                    && ClassProxyFactory.isCallerMockInvocationHandlerInvoke(new Throwable(), false);
 
             if (internalFillInStackTraceCall
                     || isMocked(method) && !Modifier.isAbstract(method.getModifiers())) {

@@ -46,23 +46,31 @@ public class ClassProxyFactory implements IProxyFactory {
     private static final NamingPolicy ALLOWS_MOCKING_CLASSES_IN_SIGNED_PACKAGES = new DefaultNamingPolicy() {
         @Override
         public String getClassName(String prefix, String source, Object key,
-                Predicate names) {
+                                   Predicate names) {
             return "codegen." + super.getClassName(prefix, source, key, names);
         }
     };
 
     // ///CLOVER:ON
 
-    public static boolean isCallerMockInvocationHandlerInvoke(Throwable e) {
+    public static boolean isCallerMockInvocationHandlerInvoke(Throwable e, boolean skipFirstElement) {
         StackTraceElement[] elements = e.getStackTrace();
-        return elements.length > 2
-                && elements[2].getClassName().equals(MockInvocationHandler.class.getName())
-                && elements[2].getMethodName().equals("invoke");
+        for (StackTraceElement element : elements) {
+            if (element.getClassName().equals(MockInvocationHandler.class.getName())
+                && element.getMethodName().equals("invoke")) {
+                if (skipFirstElement) {
+                    skipFirstElement = false;
+                    continue;
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     @SuppressWarnings("unchecked")
     public <T> T createProxy(final Class<T> toMock, InvocationHandler handler,
-            Method[] mockedMethods, ConstructorArgs args) {
+                             Method[] mockedMethods, ConstructorArgs args) {
 
         ElementMatcher.Junction<MethodDescription> junction;
         if (mockedMethods == null) {
@@ -105,8 +113,8 @@ public class ClassProxyFactory implements IProxyFactory {
                 // ///CLOVER:ON
             } catch (InvocationTargetException e) {
                 throw new RuntimeException(
-                        "Failed to instantiate mock calling constructor: Exception in constructor",
-                        e.getTargetException());
+                    "Failed to instantiate mock calling constructor: Exception in constructor",
+                    e.getTargetException());
             }
         } else {
             // Do not call any constructor
@@ -115,7 +123,7 @@ public class ClassProxyFactory implements IProxyFactory {
             } catch (InstantiationException e) {
                 // ///CLOVER:OFF
                 throw new RuntimeException("Fail to instantiate mock for " + toMock + " on "
-                        + ClassInstantiatorFactory.getJVM() + " JVM");
+                    + ClassInstantiatorFactory.getJVM() + " JVM");
                 // ///CLOVER:ON
             }
         }

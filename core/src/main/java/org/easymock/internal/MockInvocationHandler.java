@@ -19,6 +19,8 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
+import static org.easymock.internal.ClassProxyFactory.isCallerMockInvocationHandlerInvoke;
+
 /**
  * @author OFFIS, Tammo Freese
  */
@@ -34,6 +36,11 @@ public final class MockInvocationHandler implements InvocationHandler, Serializa
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
+            if (proxy instanceof Throwable && method.getName().equals("fillInStackTrace")) {
+                if(isCallerMockInvocationHandlerInvoke(new Throwable(), true)) {
+                    return proxy;
+                }
+            }
             if (control.getState() instanceof RecordState) {
                 LastControl.reportLastControl(control);
             }
